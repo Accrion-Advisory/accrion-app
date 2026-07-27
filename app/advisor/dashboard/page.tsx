@@ -2,6 +2,7 @@ import { getDashboardStats, getUpcomingReviews, getOpenFlags, getRecentActivity 
 import { format, differenceInDays } from 'date-fns'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight, ArrowDownRight, Minus, TrendingUp, Clock, AlertTriangle } from 'lucide-react'
+import { Reveal } from '@/components/brand/Reveal'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,19 +49,23 @@ function MiniSparkline({ trend }: { trend: 'up' | 'down' | 'flat' }) {
   )
 }
 
-function DeltaChip({ delta, inverse = false }: { delta: number; inverse?: boolean }) {
+function DeltaChip({ delta, inverse = false, period = 'last month' }: { delta: number; inverse?: boolean; period?: string }) {
   const isGood = inverse ? delta < 0 : delta > 0
   if (delta === 0) return (
     <span className="flex items-center gap-0.5 text-xs text-fg-muted">
-      <Minus className="w-3 h-3" /> same as last month
+      <Minus className="w-3 h-3" /> same as {period}
     </span>
   )
   return (
     <span className={`flex items-center gap-0.5 text-xs font-medium ${isGood ? 'text-success' : 'text-danger'}`}>
       {isGood ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-      {Math.abs(delta)} vs last month
+      {Math.abs(delta)} vs {period}
     </span>
   )
+}
+
+function trendFor(delta: number): 'up' | 'down' | 'flat' {
+  return delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
 }
 
 export default async function AdvisorDashboard() {
@@ -71,12 +76,17 @@ export default async function AdvisorDashboard() {
     getRecentActivity(10),
   ])
 
+  const clientsDelta = stats.totalClients - stats.previousTotalClients
+  const reviewsDelta = stats.reviewsThisMonth - stats.previousReviewsThisMonth
+  const decisionsDelta = stats.decisionsLogged - stats.previousDecisionsLogged
+  const flagsDelta = stats.flagsOpenedLast30 - stats.flagsOpenedPrev30
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-bg-secondary">
         <div className="px-8 py-6 flex items-end justify-between flex-wrap gap-3">
           <div>
-            <h1 className="font-serif text-3xl text-fg-primary">Dashboard</h1>
+            <h1 className="font-display font-bold text-3xl text-fg-primary">Dashboard</h1>
             <p className="text-sm text-fg-muted mt-1">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
           </div>
           {stats.openFlags > 0 && (
@@ -91,22 +101,22 @@ export default async function AdvisorDashboard() {
       <main className="px-8 py-8">
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          <StatCard label="Active Clients" value={stats.totalClients} trend="up" delta={2} href="/advisor/clients" color="text-fg-primary" />
-          <StatCard label="Reviews This Month" value={stats.reviewsThisMonth} trend="flat" delta={0} href="/advisor/reviews" color="text-fg-primary" />
-          <StatCard label="Open Flags" value={stats.openFlags} trend={stats.openFlags > 0 ? 'up' : 'flat'} delta={0} href="/advisor/flags" color={stats.openFlags > 0 ? 'text-danger' : 'text-fg-primary'} highlight={stats.openFlags > 0} />
-          <StatCard label="Decisions Logged" value={stats.decisionsLogged} trend="up" delta={3} color="text-fg-primary" />
-        </div>
+        <Reveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <StatCard label="Active Clients" value={stats.totalClients} trend={trendFor(clientsDelta)} delta={clientsDelta} href="/advisor/clients" color="text-fg-primary" />
+          <StatCard label="Reviews This Month" value={stats.reviewsThisMonth} trend={trendFor(reviewsDelta)} delta={reviewsDelta} href="/advisor/reviews" color="text-fg-primary" />
+          <StatCard label="Open Flags" value={stats.openFlags} trend={trendFor(flagsDelta)} delta={flagsDelta} href="/advisor/flags" color={stats.openFlags > 0 ? 'text-danger' : 'text-fg-primary'} highlight={stats.openFlags > 0} />
+          <StatCard label="Decisions Logged" value={stats.decisionsLogged} trend={trendFor(decisionsDelta)} delta={decisionsDelta} color="text-fg-primary" />
+        </Reveal>
 
         {/* Two Column */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Reveal delay={0.1} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
           {/* Upcoming Reviews */}
           <div className="bg-bg-secondary border border-border rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-fg-muted" />
-                <h2 className="font-serif text-lg text-fg-primary">Upcoming Reviews</h2>
+                <h2 className="font-display font-semibold text-lg text-fg-primary">Upcoming Reviews</h2>
               </div>
               <Link href="/advisor/reviews" className="text-sm text-accent hover:text-accent-warm transition-colors flex items-center gap-1">
                 All <ArrowRight className="w-3.5 h-3.5" />
@@ -146,7 +156,7 @@ export default async function AdvisorDashboard() {
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-danger/70 flex-shrink-0" />
-                <h2 className="font-serif text-lg text-fg-primary">Open Flags</h2>
+                <h2 className="font-display font-semibold text-lg text-fg-primary">Open Flags</h2>
               </div>
               <Link href="/advisor/flags" className="text-sm text-accent hover:text-accent-warm transition-colors flex items-center gap-1">
                 All <ArrowRight className="w-3.5 h-3.5" />
@@ -176,13 +186,13 @@ export default async function AdvisorDashboard() {
               )}
             </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Recent Activity */}
-        <div className="bg-bg-secondary border border-border rounded-lg overflow-hidden">
+        <Reveal delay={0.15} className="bg-bg-secondary border border-border rounded-lg overflow-hidden">
           <div className="flex items-center gap-2 px-6 py-5 border-b border-border">
             <TrendingUp className="w-4 h-4 text-fg-muted" />
-            <h2 className="font-serif text-lg text-fg-primary">Recent Activity</h2>
+            <h2 className="font-display font-semibold text-lg text-fg-primary">Recent Activity</h2>
           </div>
           <div className="divide-y divide-border">
             {recentActivity?.map((item: any) => (
@@ -204,7 +214,7 @@ export default async function AdvisorDashboard() {
               <div className="px-6 py-8 text-fg-muted text-sm text-center">No recent activity</div>
             )}
           </div>
-        </div>
+        </Reveal>
 
       </main>
     </div>
@@ -223,8 +233,8 @@ function StatCard({
         <span className="text-xs text-fg-muted font-medium uppercase tracking-wider leading-none">{label}</span>
         <span className={`${color} opacity-50`}><MiniSparkline trend={trend} /></span>
       </div>
-      <div className={`font-serif text-4xl leading-none mb-3 ${color}`}>{value}</div>
-      <DeltaChip delta={delta} inverse={label === 'Open Flags'} />
+      <div className={`font-display font-bold text-4xl leading-none mb-3 ${color}`}>{value}</div>
+      <DeltaChip delta={delta} inverse={label === 'Open Flags'} period={label === 'Open Flags' ? 'prior 30 days' : 'last month'} />
     </div>
   )
   if (href) return <Link href={href}>{content}</Link>

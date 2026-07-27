@@ -2,6 +2,7 @@ import { getAllClients } from '@/lib/data/clients'
 import { format, differenceInDays } from 'date-fns'
 import Link from 'next/link'
 import { ArrowRight, AlertTriangle, Plus, Clock } from 'lucide-react'
+import { Reveal } from '@/components/brand/Reveal'
 
 export const dynamic = 'force-dynamic'
 
@@ -93,7 +94,7 @@ export default async function ClientsPage() {
         <div className="px-8 py-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="font-serif text-3xl text-fg-primary">Clients</h1>
+              <h1 className="font-display font-bold text-3xl text-fg-primary">Clients</h1>
               <div className="flex items-center gap-4 mt-1.5">
                 <span className="text-sm text-fg-muted">{clients.length} total</span>
                 <span className="text-xs text-fg-muted">·</span>
@@ -114,7 +115,7 @@ export default async function ClientsPage() {
       </header>
 
       <main className="px-8 py-8">
-        <div className="bg-bg-secondary border border-border rounded-lg overflow-hidden">
+        <Reveal className="bg-bg-secondary border border-border rounded-lg overflow-hidden">
           <table className="w-full">
             <thead className="bg-bg-tertiary border-b border-border">
               <tr>
@@ -165,7 +166,7 @@ export default async function ClientsPage() {
               <Link href="/advisor/clients/new" className="text-accent hover:text-accent-warm text-sm transition-colors">Add your first client →</Link>
             </div>
           )}
-        </div>
+        </Reveal>
       </main>
     </div>
   )

@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { EditProfileModal } from '@/components/advisor/EditProfileModal'
 import { ScheduleReviewModal } from '@/components/advisor/ScheduleReviewModal'
+import { Reveal } from '@/components/brand/Reveal'
 import {
   User, Target, Flag, FileText, Calendar, MessageSquare,
   FolderOpen, TrendingUp, AlertCircle, CheckCircle2,
@@ -391,7 +392,7 @@ export default function ClientDetailPage() {
           <div className="px-4 md:px-8 py-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="font-serif text-2xl md:text-3xl text-fg-primary mb-1">{client.user?.name}</h1>
+                <h1 className="font-display font-bold text-2xl md:text-3xl text-fg-primary mb-1">{client.user?.name}</h1>
                 <div className="flex items-center gap-3 text-sm flex-wrap">
                   <span className="text-fg-muted">{client.user?.email}</span>
                   <Badge variant={client.status === 'ACTIVE' ? 'success' : client.status === 'ONBOARDING' ? 'warning' : 'neutral'}>
@@ -413,18 +414,22 @@ export default function ClientDetailPage() {
 
         <main className="px-4 md:px-8 py-6">
           <Tabs tabs={tabs} defaultTab={initialTab}>
-            {(activeTab) => {
-              switch (activeTab) {
-                case 'overview':   return <OverviewTab client={client} riskGap={riskGap} hasSignificantGap={hasSignificantGap} />
-                case 'goals':      return <GoalsTab goals={goals} onAdd={() => setAddModal('goal')} />
-                case 'behavior':   return <BehaviorTab flags={flags} snapshots={snapshots} onAddFlag={() => setAddModal('flag')} />
-                case 'decisions':  return <DecisionsTab decisions={decisions} onAdd={() => setAddModal('decision')} />
-                case 'reviews':    return <ReviewsTab reviews={reviews} onComplete={setCompletingReview} />
-                case 'communications': return <CommunicationsTab communications={communications} onAdd={() => setAddModal('communication')} />
-                case 'documents':  return <DocumentsTab documents={documents} onAdd={() => setAddModal('document')} />
-                default: return null
-              }
-            }}
+            {(activeTab) => (
+              <Reveal key={activeTab} once={false}>
+                {(() => {
+                  switch (activeTab) {
+                    case 'overview':   return <OverviewTab client={client} riskGap={riskGap} hasSignificantGap={hasSignificantGap} />
+                    case 'goals':      return <GoalsTab goals={goals} onAdd={() => setAddModal('goal')} />
+                    case 'behavior':   return <BehaviorTab flags={flags} snapshots={snapshots} onAddFlag={() => setAddModal('flag')} />
+                    case 'decisions':  return <DecisionsTab decisions={decisions} onAdd={() => setAddModal('decision')} />
+                    case 'reviews':    return <ReviewsTab reviews={reviews} onComplete={setCompletingReview} />
+                    case 'communications': return <CommunicationsTab communications={communications} onAdd={() => setAddModal('communication')} />
+                    case 'documents':  return <DocumentsTab documents={documents} onAdd={() => setAddModal('document')} />
+                    default: return null
+                  }
+                })()}
+              </Reveal>
+            )}
           </Tabs>
         </main>
       </div>

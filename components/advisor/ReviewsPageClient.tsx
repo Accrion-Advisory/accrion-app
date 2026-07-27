@@ -7,6 +7,7 @@ import { Calendar, ArrowRight, CheckCircle2, X, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Card, CardContent } from '@/components/ui/Card'
 import { ScheduleReviewModal } from './ScheduleReviewModal'
+import { Reveal } from '@/components/brand/Reveal'
 
 interface ReviewsPageClientProps {
   reviews: any[]
@@ -181,7 +182,7 @@ export function ReviewsPageClient({ reviews, clients }: ReviewsPageClientProps) 
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="font-serif text-3xl text-fg-primary">Review Cycles</h1>
+                <h1 className="font-display font-bold text-3xl text-fg-primary">Review Cycles</h1>
                 <p className="text-sm text-fg-muted mt-1">Scheduled and completed reviews</p>
               </div>
               <button
@@ -203,7 +204,7 @@ export function ReviewsPageClient({ reviews, clients }: ReviewsPageClientProps) 
               <Badge variant="warning">{scheduledReviews.length}</Badge>
             </div>
 
-            <div className="space-y-4">
+            <Reveal className="space-y-4">
               {scheduledReviews.length === 0 ? (
                 <Card>
                   <CardContent>
@@ -257,7 +258,7 @@ export function ReviewsPageClient({ reviews, clients }: ReviewsPageClientProps) 
                   </Card>
                 ))
               )}
-            </div>
+            </Reveal>
           </section>
 
           {/* Completed */}
@@ -267,7 +268,7 @@ export function ReviewsPageClient({ reviews, clients }: ReviewsPageClientProps) 
               <Badge variant="success">{completedReviews.length}</Badge>
             </div>
 
-            <div className="space-y-4">
+            <Reveal className="space-y-4">
               {completedReviews.length === 0 ? (
                 <Card>
                   <CardContent>
@@ -326,7 +327,7 @@ export function ReviewsPageClient({ reviews, clients }: ReviewsPageClientProps) 
                   </Card>
                 ))
               )}
-            </div>
+            </Reveal>
           </section>
         </main>
       </div>

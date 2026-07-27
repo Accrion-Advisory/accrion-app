@@ -2,8 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Loader2, TrendingUp, Brain, Shield, BarChart2, Calendar, Users, CheckCircle, ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Eye, EyeOff, Loader2, Brain, Shield, BarChart2, Calendar, Users, CheckCircle, ArrowRight, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { Logo } from '@/components/brand/Logo'
+import { Reveal } from '@/components/brand/Reveal'
 
 export const dynamic = 'force-dynamic'
 
@@ -105,31 +108,25 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="font-serif text-2xl text-fg-primary">Accrion.</span>
-              <span className="block text-xs text-fg-muted tracking-widest uppercase mt-0.5">Advisory Platform</span>
-            </div>
+          <div className="mb-16">
+            <Logo size={40} href={null} />
           </div>
 
           {/* Hero */}
-          <div className="mb-14">
-            <h1 className="font-serif text-5xl text-fg-primary leading-tight mb-5">
+          <Reveal className="mb-14">
+            <h1 className="font-display font-bold text-5xl text-fg-primary leading-tight mb-5">
               Financial advice
               <br />
-              <span className="text-accent">rooted in behavior.</span>
+              <span className="gradient-text">rooted in behavior.</span>
             </h1>
             <p className="text-lg text-fg-secondary leading-relaxed max-w-lg">
               Accrion is a behavioral financial advisory platform. Track how your clients
               actually think, not just what they own — and build relationships that last decades.
             </p>
-          </div>
+          </Reveal>
 
           {/* Features */}
-          <div className="grid grid-cols-2 gap-4 mb-14">
+          <Reveal delay={0.1} className="grid grid-cols-2 gap-4 mb-14">
             {features.map((feature) => (
               <div key={feature.title} className="bg-bg-primary/60 border border-border rounded-xl p-4 backdrop-blur-sm">
                 <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center mb-3">
@@ -139,7 +136,7 @@ export default function LoginPage() {
                 <p className="text-xs text-fg-muted leading-relaxed">{feature.description}</p>
               </div>
             ))}
-          </div>
+          </Reveal>
 
           {/* Trust signals */}
           <div className="flex items-center gap-6 text-xs text-fg-muted">
@@ -175,18 +172,15 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 lg:p-16 min-h-screen lg:min-h-0">
 
         {/* Mobile logo */}
-        <div className="lg:hidden flex items-center gap-2.5 mb-10">
-          <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow shadow-accent/20">
-            <TrendingUp className="w-4.5 h-4.5 text-white" />
-          </div>
-          <span className="font-serif text-2xl text-fg-primary">Accrion.</span>
+        <div className="lg:hidden mb-10">
+          <Logo size={36} href={null} />
         </div>
 
         <div className="w-full max-w-[400px]">
 
           {/* Header */}
           <div className="mb-8">
-            <h2 className="font-serif text-3xl text-fg-primary mb-2">Welcome back</h2>
+            <h2 className="font-display font-bold text-3xl text-fg-primary mb-2">Welcome back</h2>
             <p className="text-fg-muted">Sign in to your advisory platform</p>
           </div>
 
@@ -252,12 +246,13 @@ export default function LoginPage() {
               </div>
             )}
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-accent text-white font-semibold rounded-xl transition-all duration-200
-                         hover:bg-accent-warm hover:shadow-lg hover:shadow-accent/20
-                         active:scale-[0.99]
+              whileHover={loading ? undefined : { scale: 1.015 }}
+              whileTap={loading ? undefined : { scale: 0.985 }}
+              className="w-full py-3.5 bg-grad-brand text-white font-semibold rounded-xl transition-shadow duration-200
+                         hover:shadow-[0_8px_30px_-8px_var(--glow-violet)]
                          disabled:opacity-50 disabled:cursor-not-allowed
                          flex items-center justify-center gap-2.5 text-[15px]"
             >
@@ -272,7 +267,7 @@ export default function LoginPage() {
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           {/* Divider */}

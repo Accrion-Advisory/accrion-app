@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { User, Bell, Shield, Clock, Loader2, CheckCircle2 } from 'lucide-react'
+import { User, Bell, Shield, Clock, Loader2, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { createClient } from '@/lib/supabase/client'
+import { Reveal } from '@/components/brand/Reveal'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +65,7 @@ export default function SettingsPage() {
 
   const [profileSaving, setProfileSaving] = useState(false)
   const [profileSaved, setProfileSaved] = useState(false)
+  const [profileError, setProfileError] = useState('')
   const [availSaving, setAvailSaving] = useState(false)
   const [availSaved, setAvailSaved] = useState(false)
 
@@ -73,6 +75,15 @@ export default function SettingsPage() {
     reviewReminders: true,
     clientUpdates: false,
   })
+  const [notifSaving, setNotifSaving] = useState(false)
+
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [passwordSaving, setPasswordSaving] = useState(false)
+  const [passwordSaved, setPasswordSaved] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -80,10 +91,18 @@ export default function SettingsPage() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (!authUser) return
       const id = authUser.id
-      const name = authUser.user_metadata?.name ?? ''
-      const email = authUser.email ?? ''
-      setUserData({ name, email, id })
+      setUserData({ name: authUser.user_metadata?.name ?? '', email: authUser.email ?? '', id })
       if (!id) return
+
+    fetch('/api/advisor/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        setUserData({ name: data.name ?? '', email: data.email ?? '', id })
+        if (data.notification_prefs && Object.keys(data.notification_prefs).length > 0) {
+          setNotifications((prev) => ({ ...prev, ...data.notification_prefs }))
+        }
+      })
+      .catch(() => {})
 
     fetch(`/api/advisor/availability/settings?advisorId=${id}`)
       .then((res) => res.json())
@@ -125,10 +144,65 @@ export default function SettingsPage() {
 
   const handleSaveProfile = async () => {
     setProfileSaving(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setProfileSaving(false)
-    setProfileSaved(true)
-    setTimeout(() => setProfileSaved(false), 3000)
+    setProfileError('')
+    try {
+      const res = await fetch('/api/advisor/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: userData.name, email: userData.email }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to save profile')
+      setProfileSaved(true)
+      setTimeout(() => setProfileSaved(false), 3000)
+    } catch (err) {
+      setProfileError(err instanceof Error ? err.message : 'Failed to save profile')
+    } finally {
+      setProfileSaving(false)
+    }
+  }
+
+  const handleToggleNotification = async (key: keyof typeof notifications, value: boolean) => {
+    const updated = { ...notifications, [key]: value }
+    setNotifications(updated)
+    setNotifSaving(true)
+    try {
+      await fetch('/api/advisor/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notification_prefs: updated }),
+      })
+    } catch {
+      // best-effort — local state already reflects the toggle
+    } finally {
+      setNotifSaving(false)
+    }
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+    if (newPassword.length < 8) { setPasswordError('Password must be at least 8 characters'); return }
+    if (newPassword !== confirmPassword) { setPasswordError('Passwords do not match'); return }
+    setPasswordSaving(true)
+    try {
+      const res = await fetch('/api/advisor/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to change password')
+      setPasswordSaved(true)
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowPasswordForm(false)
+      setTimeout(() => setPasswordSaved(false), 3000)
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password')
+    } finally {
+      setPasswordSaving(false)
+    }
   }
 
   const handleSaveAvailability = async () => {
@@ -162,7 +236,7 @@ export default function SettingsPage() {
       {/* Header — matches Clients/Flags pages */}
       <header className="border-b border-border bg-bg-secondary">
         <div className="px-8 py-6">
-          <h1 className="font-serif text-3xl text-fg-primary">Settings</h1>
+          <h1 className="font-display font-bold text-3xl text-fg-primary">Settings</h1>
           <p className="text-sm text-fg-muted mt-1">Manage your profile and availability</p>
         </div>
       </header>
@@ -170,6 +244,7 @@ export default function SettingsPage() {
       <main className="px-8 py-8 space-y-6 max-w-3xl">
 
         {/* Profile */}
+        <Reveal>
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -210,6 +285,9 @@ export default function SettingsPage() {
                   className="w-full px-3 py-2 bg-bg-tertiary border border-border rounded text-fg-muted cursor-not-allowed"
                 />
               </div>
+              {profileError && (
+                <div className="px-3 py-2 bg-danger/10 border border-danger/30 rounded text-danger text-sm">{profileError}</div>
+              )}
               <div className="flex justify-end pt-2">
                 <button
                   onClick={handleSaveProfile}
@@ -225,8 +303,10 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        </Reveal>
 
         {/* Active Hours */}
+        <Reveal delay={0.05}>
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -326,8 +406,10 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        </Reveal>
 
         {/* Notifications */}
+        <Reveal delay={0.1}>
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -351,7 +433,8 @@ export default function SettingsPage() {
                     <input
                       type="checkbox"
                       checked={notifications[key]}
-                      onChange={(e) => setNotifications({ ...notifications, [key]: e.target.checked })}
+                      disabled={notifSaving}
+                      onChange={(e) => handleToggleNotification(key, e.target.checked)}
                       className="sr-only peer"
                     />
                     <div className="w-10 h-6 bg-bg-tertiary rounded-full peer
@@ -365,8 +448,10 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        </Reveal>
 
         {/* Security */}
+        <Reveal delay={0.15}>
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -378,23 +463,97 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <button className="w-full px-4 py-3 bg-bg-primary border border-border rounded text-left
-                                 hover:bg-bg-tertiary transition-colors group">
-                <div className="font-medium text-fg-primary group-hover:text-accent transition-colors text-sm">
-                  Change Password
+              <div className="border border-border rounded overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordForm((v) => !v)}
+                  className="w-full px-4 py-3 bg-bg-primary text-left hover:bg-bg-tertiary transition-colors group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-fg-primary group-hover:text-accent transition-colors text-sm">
+                        Change Password
+                      </div>
+                      <div className="text-xs text-fg-muted mt-0.5">Update your account password</div>
+                    </div>
+                    {passwordSaved && <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />}
+                  </div>
+                </button>
+                {showPasswordForm && (
+                  <form onSubmit={handleChangePassword} className="p-4 border-t border-border space-y-3 bg-bg-secondary">
+                    {passwordError && (
+                      <div className="px-3 py-2 bg-danger/10 border border-danger/30 rounded text-danger text-sm">{passwordError}</div>
+                    )}
+                    <div>
+                      <label className="block text-sm font-medium text-fg-secondary mb-1.5">New Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          minLength={8}
+                          required
+                          className="w-full px-3 py-2 pr-10 bg-bg-primary border border-border rounded text-fg-primary text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          tabIndex={-1}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-primary transition-colors p-1"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-fg-secondary mb-1.5">Confirm Password</label>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        minLength={8}
+                        required
+                        className="w-full px-3 py-2 bg-bg-primary border border-border rounded text-fg-primary text-sm
+                                   focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => { setShowPasswordForm(false); setNewPassword(''); setConfirmPassword(''); setPasswordError('') }}
+                        className="px-4 py-2 text-sm border border-border rounded hover:bg-bg-tertiary transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={passwordSaving}
+                        className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded text-sm font-medium
+                                   hover:bg-accent/90 transition-colors disabled:opacity-50"
+                      >
+                        {passwordSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {passwordSaving ? 'Saving...' : 'Update Password'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+              <div className="w-full px-4 py-3 bg-bg-tertiary border border-border rounded flex items-center justify-between opacity-70 cursor-not-allowed">
+                <div>
+                  <div className="font-medium text-fg-primary text-sm">
+                    Two-Factor Authentication
+                  </div>
+                  <div className="text-xs text-fg-muted mt-0.5">Add an extra layer of security</div>
                 </div>
-                <div className="text-xs text-fg-muted mt-0.5">Update your account password</div>
-              </button>
-              <button className="w-full px-4 py-3 bg-bg-primary border border-border rounded text-left
-                                 hover:bg-bg-tertiary transition-colors group">
-                <div className="font-medium text-fg-primary group-hover:text-accent transition-colors text-sm">
-                  Two-Factor Authentication
-                </div>
-                <div className="text-xs text-fg-muted mt-0.5">Add an extra layer of security</div>
-              </button>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-bg-secondary border border-border text-fg-muted flex-shrink-0">
+                  Coming soon
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
+        </Reveal>
 
       </main>
     </div>

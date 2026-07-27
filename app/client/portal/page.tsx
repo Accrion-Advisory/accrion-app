@@ -2,16 +2,19 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import {
   LogOut, Calendar, ChevronLeft, ChevronRight,
   X, CheckCircle2, Loader2, User, RefreshCw, Trash2, AlertTriangle,
-  Target, Brain, FileText, Clock, TrendingUp, BookOpen,
+  Target, Brain, FileText, Clock, BookOpen,
   ChevronDown, Shield, BarChart2, Menu,
   AlertCircle, CheckCircle, Pause, Zap, ExternalLink,
 } from 'lucide-react'
 import { format, parseISO, addDays, formatDistanceToNow } from 'date-fns'
 import { createClient } from '@/lib/supabase/client'
+import { Logo } from '@/components/brand/Logo'
+import { Reveal } from '@/components/brand/Reveal'
 
 type ModalMode = 'book' | 'reschedule' | 'cancel'
 type NavSection = 'overview' | 'goals' | 'decisions' | 'reviews' | 'documents'
@@ -228,9 +231,7 @@ export default function ClientPortal() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
         <div className="flex flex-col items-center gap-4 text-fg-muted">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-white" />
-          </div>
+          <Logo size={40} showWordmark={false} href={null} />
           <div className="flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" />
             <span className="text-sm">Loading your portal...</span>
@@ -247,16 +248,11 @@ export default function ClientPortal() {
       <header className="sticky top-0 z-30 border-b border-border bg-bg-secondary/95 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
           {/* Brand */}
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
-              <TrendingUp className="w-4 h-4 text-white" />
-            </div>
+          <div className="flex items-center gap-3 min-w-0">
+            <Logo size={30} showWordmark={false} href={null} />
             <div className="min-w-0 hidden sm:block">
-              <div className="font-serif text-base text-fg-primary leading-tight truncate">{user?.name}</div>
+              <div className="font-display font-semibold text-base text-fg-primary leading-tight truncate">{user?.name}</div>
               <div className="text-xs text-fg-muted">Accrion Advisory</div>
-            </div>
-            <div className="min-w-0 sm:hidden">
-              <span className="font-serif text-base text-fg-primary">Accrion.</span>
             </div>
           </div>
 
@@ -330,7 +326,7 @@ export default function ClientPortal() {
         {/* ── OVERVIEW ── */}
         <section ref={(el) => { sectionRefs.current.overview = el }}>
           {/* Mobile: stack advisor + review on top */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Reveal className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
 
             <div className="lg:col-span-1 space-y-4">
               {/* Advisor card */}
@@ -346,14 +342,16 @@ export default function ClientPortal() {
                   </div>
                 </div>
                 {!nextReview && (
-                  <button
+                  <motion.button
                     onClick={openBook}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-white
-                               rounded-lg hover:bg-accent-warm transition-colors font-medium text-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-grad-brand text-white
+                               rounded-lg font-medium text-sm shadow-[0_8px_24px_-10px_var(--glow-violet)]"
                   >
                     <Calendar className="w-4 h-4" />
                     Book a Review Call
-                  </button>
+                  </motion.button>
                 )}
               </div>
 
@@ -457,7 +455,7 @@ export default function ClientPortal() {
                 )}
               </div>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         {/* ── GOALS ── */}
@@ -470,6 +468,7 @@ export default function ClientPortal() {
             <span className="text-sm text-fg-muted">{goals.length} goal{goals.length !== 1 ? 's' : ''}</span>
           </div>
 
+          <Reveal>
           {goals.length === 0 ? (
             <div className="bg-bg-secondary border border-border rounded-xl p-10 text-center">
               <Target className="w-10 h-10 text-fg-muted mx-auto mb-3 opacity-40" />
@@ -513,6 +512,7 @@ export default function ClientPortal() {
               })}
             </div>
           )}
+          </Reveal>
         </section>
 
         {/* ── DECISIONS ── */}
@@ -526,6 +526,7 @@ export default function ClientPortal() {
           </div>
           <p className="text-sm text-fg-secondary mb-5 -mt-2">A record of important financial decisions, giving you a long-horizon view of your journey.</p>
 
+          <Reveal>
           {decisions.length === 0 ? (
             <div className="bg-bg-secondary border border-border rounded-xl p-10 text-center">
               <BookOpen className="w-10 h-10 text-fg-muted mx-auto mb-3 opacity-40" />
@@ -571,6 +572,7 @@ export default function ClientPortal() {
               ))}
             </div>
           )}
+          </Reveal>
         </section>
 
         {/* ── REVIEWS ── */}
@@ -590,6 +592,7 @@ export default function ClientPortal() {
             )}
           </div>
 
+          <Reveal>
           {nextReview && (
             <div className="bg-accent/8 border border-accent/20 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -661,6 +664,7 @@ export default function ClientPortal() {
               })}
             </div>
           )}
+          </Reveal>
         </section>
 
         {/* ── DOCUMENTS ── */}
@@ -670,6 +674,7 @@ export default function ClientPortal() {
             <h2 className="font-serif text-xl sm:text-2xl text-fg-primary">Documents</h2>
           </div>
 
+          <Reveal>
           {documents.length === 0 ? (
             <div className="bg-bg-secondary border border-border rounded-xl p-10 text-center">
               <Shield className="w-10 h-10 text-fg-muted mx-auto mb-3 opacity-40" />
@@ -705,6 +710,7 @@ export default function ClientPortal() {
               })}
             </div>
           )}
+          </Reveal>
         </section>
 
       </main>
@@ -849,12 +855,14 @@ export default function ClientPortal() {
                     <div className="text-sm text-fg-muted">
                       {selectedSlot ? `${format(parseISO(selectedSlot.date), 'MMM d')} at ${selectedSlot.label}` : 'Select date & time'}
                     </div>
-                    <button onClick={handleBook} disabled={!selectedSlot || submitting}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg font-medium text-sm
-                                 hover:bg-accent-warm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    <motion.button onClick={handleBook} disabled={!selectedSlot || submitting}
+                      whileHover={!selectedSlot || submitting ? undefined : { scale: 1.02 }}
+                      whileTap={!selectedSlot || submitting ? undefined : { scale: 0.98 }}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-grad-brand text-white rounded-lg font-medium text-sm
+                                 disabled:opacity-40 disabled:cursor-not-allowed">
                       {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                       {submitting ? 'Saving...' : modalMode === 'reschedule' ? 'Confirm Reschedule' : 'Confirm Booking'}
-                    </button>
+                    </motion.button>
                   </div>
                 </>
               )}

@@ -6,38 +6,79 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+  const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
+  const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString()
 
-  // Get total active clients
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString()
+
+  // Get total active clients (now, and as of the end of last month)
   const { count: totalClients } = await supabase
     .from('clients')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'ACTIVE')
 
-  // Get reviews this month
+  const { count: previousTotalClients } = await supabase
+    .from('clients')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'ACTIVE')
+    .lte('onboarded_at', endOfPrevMonth)
+
+  // Get reviews this month vs last month
   const { count: reviewsThisMonth } = await supabase
     .from('review_cycles')
     .select('*', { count: 'exact', head: true })
     .gte('scheduled_date', startOfMonth)
     .lte('scheduled_date', endOfMonth)
 
-  // Get open flags
+  const { count: previousReviewsThisMonth } = await supabase
+    .from('review_cycles')
+    .select('*', { count: 'exact', head: true })
+    .gte('scheduled_date', startOfPrevMonth)
+    .lte('scheduled_date', endOfPrevMonth)
+
+  // Open flags right now — trended against flags opened in the prior 30-day
+  // window vs the 30 days before that (a point-in-time "still open" count
+  // has no meaningful month-ago equivalent, so we trend on new-flag volume).
   const { count: openFlags } = await supabase
     .from('behavioral_flags')
     .select('*', { count: 'exact', head: true })
     .eq('resolved', false)
 
-  // Get decisions logged this month
+  const { count: flagsOpenedLast30 } = await supabase
+    .from('behavioral_flags')
+    .select('*', { count: 'exact', head: true })
+    .gte('date', thirtyDaysAgo)
+
+  const { count: flagsOpenedPrev30 } = await supabase
+    .from('behavioral_flags')
+    .select('*', { count: 'exact', head: true })
+    .gte('date', sixtyDaysAgo)
+    .lt('date', thirtyDaysAgo)
+
+  // Get decisions logged this month vs last month
   const { count: decisionsLogged } = await supabase
     .from('decision_log')
     .select('*', { count: 'exact', head: true })
     .gte('created_at', startOfMonth)
     .lte('created_at', endOfMonth)
 
+  const { count: previousDecisionsLogged } = await supabase
+    .from('decision_log')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', startOfPrevMonth)
+    .lte('created_at', endOfPrevMonth)
+
   return {
     totalClients: totalClients || 0,
     reviewsThisMonth: reviewsThisMonth || 0,
     openFlags: openFlags || 0,
     decisionsLogged: decisionsLogged || 0,
+    previousTotalClients: previousTotalClients || 0,
+    previousReviewsThisMonth: previousReviewsThisMonth || 0,
+    previousDecisionsLogged: previousDecisionsLogged || 0,
+    flagsOpenedLast30: flagsOpenedLast30 || 0,
+    flagsOpenedPrev30: flagsOpenedPrev30 || 0,
   }
 }
 

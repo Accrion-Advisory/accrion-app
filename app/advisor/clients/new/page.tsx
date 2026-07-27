@@ -105,7 +105,7 @@ export default function NewClientPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-success/10 border-2 border-success mb-6">
             <CheckCircle2 className="w-10 h-10 text-success" />
           </div>
-          <h1 className="text-3xl font-serif text-fg-primary mb-3">Client Onboarded Successfully</h1>
+          <h1 className="text-3xl font-display font-bold text-fg-primary mb-3">Client Onboarded Successfully</h1>
           <p className="text-fg-secondary mb-6">Redirecting to client profile...</p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function NewClientPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to Clients
           </Link>
-          <h1 className="font-serif text-4xl text-fg-primary mb-2">Onboard New Client</h1>
+          <h1 className="font-display font-bold text-4xl text-fg-primary mb-2">Onboard New Client</h1>
           <p className="text-fg-secondary">Complete this form with your client during your first meeting</p>
         </div>
 

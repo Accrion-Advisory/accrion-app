@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Lora, DM_Sans, JetBrains_Mono } from 'next/font/google'
+import { Lora, DM_Sans, JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/lib/theme-provider'
 
@@ -21,12 +21,15 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 })
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   title: 'Accrion.',
   description: 'Long-horizon behavioral financial advisory platform',
-  icons: {
-    icon: '/favicon.svg',
-  },
 }
 
 export default function RootLayout({
@@ -35,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${lora.variable} ${dmSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${lora.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider>
           {children}

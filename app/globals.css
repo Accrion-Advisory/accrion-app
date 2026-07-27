@@ -3,37 +3,55 @@
 @tailwind utilities;
 
 :root {
-  /* Light Mode */
-  --bg-primary: #f7f6f2;
-  --bg-secondary: #efede6;
-  --bg-tertiary: #e8e5db;
-  --fg-primary: #1a1a1a;
-  --fg-secondary: #4a4a4a;
-  --fg-muted: #8a8580;
-  --border: #dcd9d0;
-  --border-strong: #c4c0b5;
-  --accent: #2c5f8a;
-  --accent-warm: #8a4a2c;
-  --success: #2d6a4f;
+  /* Light Mode — Accrion brand (violet→teal "AC" monogram) */
+  --bg-primary: #f8f8fc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f1f8;
+  --fg-primary: #14162e;
+  --fg-secondary: #4d4f6e;
+  --fg-muted: #8a8ca0;
+  --border: #e2e1ee;
+  --border-strong: #cfcee2;
+  --accent: #6a4df0;
+  --accent-warm: #12a99c;
+  --success: #1f9d6f;
   --warning: #b5770d;
-  --danger: #8a2c2c;
+  --danger: #c0392b;
+
+  --violet: #6a4df0;
+  --violet-bright: #7c5cff;
+  --teal: #12a99c;
+  --teal-bright: #22c6b8;
+  --blue: #3f74e0;
+  --grad-brand: linear-gradient(120deg, #6a4df0 0%, #3f74e0 50%, #12a99c 100%);
+  --glow-violet: rgba(106, 77, 240, 0.18);
+  --glow-teal: rgba(18, 169, 156, 0.16);
 }
 
 .dark {
-  /* Dark Mode */
-  --bg-primary: #141412;
-  --bg-secondary: #1c1b18;
-  --bg-tertiary: #242320;
-  --fg-primary: #e8e6e0;
-  --fg-secondary: #b0ada6;
-  --fg-muted: #706d66;
-  --border: #2a2825;
-  --border-strong: #3a3830;
-  --accent: #4a8fbe;
-  --accent-warm: #be6a4a;
+  /* Dark Mode — matches the Accrion marketing site's tokens exactly */
+  --bg-primary: #08090f;
+  --bg-secondary: #12142a;
+  --bg-tertiary: #181b34;
+  --fg-primary: #ecebf7;
+  --fg-secondary: #9698ba;
+  --fg-muted: #6a6d8f;
+  --border: #262a4d;
+  --border-strong: #333863;
+  --accent: #7c5cff;
+  --accent-warm: #22c6b8;
   --success: #4a9e6f;
   --warning: #d4960f;
   --danger: #be4a4a;
+
+  --violet: #7c5cff;
+  --violet-bright: #9d6cff;
+  --teal: #22c6b8;
+  --teal-bright: #33e6d0;
+  --blue: #5b8def;
+  --grad-brand: linear-gradient(120deg, #7c5cff 0%, #5b8def 50%, #22c6b8 100%);
+  --glow-violet: rgba(124, 92, 255, 0.45);
+  --glow-teal: rgba(34, 198, 184, 0.4);
 }
 
 * {
@@ -89,3 +107,34 @@ input[type="number"] {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--fg-muted);
 }
+
+/* Brand utilities (mirrors the marketing site's gradient system) */
+.gradient-text {
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.gradient-border {
+  position: relative;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--grad-brand);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.glow-violet { box-shadow: 0 0 60px -12px var(--glow-violet); }
+.glow-teal { box-shadow: 0 0 60px -12px var(--glow-teal); }

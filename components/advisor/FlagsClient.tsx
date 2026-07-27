@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2, Loader2, AlertTriangle, AlertCircle, Info } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Card, CardContent } from '@/components/ui/Card'
+import { Reveal } from '@/components/brand/Reveal'
 
 const BIAS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
   loss_aversion:  { label: 'Loss Aversion',  color: 'text-danger',      bg: 'bg-danger/10' },
@@ -133,7 +134,7 @@ export function FlagsClient({ initialFlags }: { initialFlags: any[] }) {
     <div className="min-h-screen">
       <header className="border-b border-border bg-bg-secondary">
         <div className="px-8 py-6">
-          <h1 className="font-serif text-3xl text-fg-primary">Behavioral Flags</h1>
+          <h1 className="font-display font-bold text-3xl text-fg-primary">Behavioral Flags</h1>
           <p className="text-sm text-fg-muted mt-1">Track and resolve behavioral concerns across your book</p>
         </div>
       </header>
@@ -141,24 +142,24 @@ export function FlagsClient({ initialFlags }: { initialFlags: any[] }) {
       <main className="px-8 py-8 space-y-8">
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Reveal className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-bg-secondary border border-border rounded-lg p-5">
             <div className="text-xs text-fg-muted uppercase tracking-wider mb-2">Total Open</div>
-            <div className="font-serif text-4xl text-fg-primary">{openFlags.length}</div>
+            <div className="font-display font-bold text-4xl text-fg-primary">{openFlags.length}</div>
           </div>
           <div className="bg-bg-secondary border border-danger/30 rounded-lg p-5">
             <div className="text-xs text-fg-muted uppercase tracking-wider mb-2">High Severity</div>
-            <div className="font-serif text-4xl text-danger">{highOpen.length}</div>
+            <div className="font-display font-bold text-4xl text-danger">{highOpen.length}</div>
           </div>
           <div className="bg-bg-secondary border border-warning/30 rounded-lg p-5">
             <div className="text-xs text-fg-muted uppercase tracking-wider mb-2">Medium Severity</div>
-            <div className="font-serif text-4xl text-warning">{mediumOpen.length}</div>
+            <div className="font-display font-bold text-4xl text-warning">{mediumOpen.length}</div>
           </div>
           <div className="bg-bg-secondary border border-success/20 rounded-lg p-5">
             <div className="text-xs text-fg-muted uppercase tracking-wider mb-2">Resolved</div>
-            <div className="font-serif text-4xl text-success">{resolvedFlags.length}</div>
+            <div className="font-display font-bold text-4xl text-success">{resolvedFlags.length}</div>
           </div>
-        </div>
+        </Reveal>
 
         {/* Open flags grouped by severity */}
         {openFlags.length === 0 ? (

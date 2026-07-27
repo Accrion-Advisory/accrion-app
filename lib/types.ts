@@ -203,4 +203,10 @@ export interface DashboardStats {
   reviewsThisMonth: number
   openFlags: number
   decisionsLogged: number
+  previousTotalClients: number
+  previousReviewsThisMonth: number
+  previousDecisionsLogged: number
+  /** New flags opened in the trailing 30 days, vs the 30 days before that. */
+  flagsOpenedLast30: number
+  flagsOpenedPrev30: number
 }

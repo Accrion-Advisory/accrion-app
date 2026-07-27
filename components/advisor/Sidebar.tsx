@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   Calendar,
+  Flag,
   Settings,
   LogOut,
   Menu,
@@ -15,12 +16,14 @@ import {
   UserCircle,
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Logo } from '@/components/brand/Logo'
 import { createClient } from '@/lib/supabase/client'
 
 const navigation = [
   { name: 'Dashboard', href: '/advisor/dashboard', icon: LayoutDashboard },
   { name: 'Clients',   href: '/advisor/clients',   icon: Users },
   { name: 'Reviews',   href: '/advisor/reviews',   icon: Calendar },
+  { name: 'Flags',     href: '/advisor/flags',     icon: Flag },
   { name: 'Settings',  href: '/advisor/settings',  icon: Settings },
 ]
 
@@ -66,8 +69,8 @@ export function Sidebar() {
       {/* ── Desktop sidebar ── */}
       <div className="hidden md:flex w-64 bg-bg-secondary border-r border-border h-screen flex-col fixed left-0 top-0 z-30">
         <div className="px-6 py-6 border-b border-border">
-          <h1 className="font-serif text-2xl text-fg-primary">Accrion.</h1>
-          <p className="text-xs text-fg-muted mt-0.5">Advisory Platform</p>
+          <Logo size={32} href={null} />
+          <p className="text-xs text-fg-muted mt-2">Advisory Platform</p>
         </div>
 
         <div className="px-4 pt-4 pb-2">
@@ -112,7 +115,7 @@ export function Sidebar() {
 
       {/* ── Mobile top bar ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-bg-secondary border-b border-border px-4 py-3 flex items-center justify-between">
-        <h1 className="font-serif text-xl text-fg-primary">Accrion.</h1>
+        <Logo size={28} href={null} />
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <button onClick={() => setMobileOpen(true)} className="p-2 rounded hover:bg-bg-tertiary transition-colors text-fg-secondary">
@@ -128,8 +131,8 @@ export function Sidebar() {
           <div className="relative w-72 bg-bg-secondary h-full flex flex-col shadow-2xl">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <div>
-                <h1 className="font-serif text-xl text-fg-primary">Accrion.</h1>
-                <p className="text-xs text-fg-muted mt-0.5">Advisory Platform</p>
+                <Logo size={28} href={null} />
+                <p className="text-xs text-fg-muted mt-2">Advisory Platform</p>
               </div>
               <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded hover:bg-bg-tertiary transition-colors text-fg-muted">
                 <X className="w-5 h-5" />
