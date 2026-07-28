@@ -23,7 +23,7 @@ export function Logo({ size = 34, showWordmark = true, href = '/advisor/dashboar
           height: size,
           width: size,
           background: 'linear-gradient(150deg, #ffffff 0%, #ece9f7 100%)',
-          boxShadow: '0 0 0 1px rgba(20,22,46,0.06), 0 6px 20px -8px var(--glow-violet)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 6px 20px -8px var(--glow-violet)',
         }}
       >
         <Image

@@ -31,7 +31,7 @@ A behavioral financial advisory CRM built for independent financial advisors. Ac
 | Language | TypeScript |
 | Styling | Tailwind CSS |
 | Database | Supabase (PostgreSQL) |
-| Auth | Custom session-based (bcryptjs) |
+| Auth | Supabase Auth |
 | UI Components | Lucide React, Recharts, Framer Motion |
 
 ---
@@ -59,23 +59,26 @@ npm install
 ### 3. Set up environment variables
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Open `.env` and fill in your Supabase project URL and anon key. You can find these in your Supabase dashboard under **Project Settings → API**.
+Open `.env.local` and fill in your Supabase project URL, anon key, and service role key. You can find these in your Supabase dashboard under **Project Settings → API**.
 
 ### 4. Set up the database
 
-In your Supabase project, open the **SQL Editor** and run the two files in order:
+Install the [Supabase CLI](https://supabase.com/docs/guides/cli) if you haven't already, then link it to your project and push the migrations:
 
-**Step 1 — Schema** (creates all tables, indexes, and RLS policies):
-```
-supabase/accrion-schema.sql
+```bash
+supabase link --project-ref <your-project-ref>
+supabase db push
 ```
 
-**Step 2 — Seed data** (optional — adds a sample advisor and client to test with):
-```
-supabase/accrion-seed.sql
+This runs the three files in `supabase/migrations/` in order — schema, auth sync triggers, and RLS policies.
+
+Optionally, seed a demo advisor and client:
+
+```bash
+npm run seed
 ```
 
 ### 5. Run the development server
@@ -115,16 +118,18 @@ accrion/
 │   ├── data/             # Supabase data access functions
 │   ├── supabase/         # Supabase client setup
 │   └── types.ts          # Shared TypeScript types
+├── scripts/
+│   └── seed.mjs          # Demo advisor/client seed script
 └── supabase/
-    ├── accrion-schema.sql  # Full database schema
-    └── accrion-seed.sql    # Sample data
+    ├── config.toml         # Supabase CLI project config
+    └── migrations/         # Schema, auth sync, and RLS policies (run via `supabase db push`)
 ```
 
 ---
 
 ## Database
 
-The schema is fully documented in `supabase/accrion-schema.sql`. Key tables:
+The schema is fully documented across `supabase/migrations/`. Key tables:
 
 - `users` — advisors and clients
 - `clients` — client profiles with behavioral data

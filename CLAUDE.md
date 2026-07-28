@@ -20,11 +20,15 @@ There is no test suite configured in this repo.
 
 ### Database setup (Supabase)
 
-Run these in the Supabase SQL Editor, in order:
-1. `supabase/migrations/accrion-schema.sql` — tables, indexes, RLS policies
-2. `supabase/migrations/accrion-seed.sql` — optional sample advisor/client
+`supabase/migrations/` is a numbered, CLI-native set (`20260101000000_schema.sql` → tables/enums/indexes, `20260101000001_auth_sync.sql` → the `auth.users` sync triggers and `is_advisor()` helper, `20260101000002_rls_policies.sql` → RLS). They run forward-only against an empty database — there's no reset/truncate script, so a brand new Supabase project is the expected starting point.
 
-`supabase/migrations/phase1-complete-reset-fixed.sql` is a reset script, not part of the normal setup path.
+```bash
+supabase link --project-ref <ref>   # once, after `supabase init` has already run
+supabase db push                    # applies all three migrations in order
+npm run seed                        # optional: demo advisor + client via scripts/seed.mjs
+```
+
+`scripts/seed.mjs` creates the two demo Supabase Auth users through the Admin API (`auth.admin.createUser`, which fires the `handle_new_auth_user` trigger to populate `public.users`) and inserts their sample goals/flags/decisions/review/availability — safe to re-run for the auth users and client profile (upserted), but child rows have no unique key so re-running duplicates them.
 
 Required env vars (see `.env.example`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 
@@ -53,7 +57,9 @@ Demo logins after seeding: advisor `tanay@accrion.co` / `advisor123`, client `ar
 
 ### Styling / theming
 - Tailwind config (`tailwind.config.ts`) maps semantic color tokens (`bg-primary/secondary/tertiary`, `fg-primary/secondary/muted`, `border`, `accent`/`accent-warm`, `success`/`warning`/`danger`) to CSS variables, toggled via `darkMode: 'class'` — always use these semantic classes (e.g. `text-fg-primary`, `bg-bg-secondary`) rather than raw Tailwind color scales, and check `app/globals.css` for the variable definitions when adding new colors.
-- Fonts are exposed as `font-serif` (Lora — used for headings), `font-sans` (DM Sans — body), `font-mono` (JetBrains Mono — dates/timestamps).
+- Fonts: `font-display` (Space Grotesk, falls back to DM Sans — brand/heading use, e.g. page titles and the `Logo` wordmark), `font-serif` (Lora — body headings), `font-sans` (DM Sans — body text), `font-mono` (JetBrains Mono — dates/timestamps).
+- `bg-grad-brand` (Tailwind) / `var(--grad-brand)` (CSS) is the brand gradient used for the logo wordmark and other accent surfaces; defined per-theme in `app/globals.css`.
+- `components/brand/` holds identity components from the rebrand: `Logo` (monogram + gradient wordmark lockup) and `Reveal` (`framer-motion` scroll-triggered fade/rise wrapper, respects `prefers-reduced-motion` — used throughout advisor pages to animate sections into view).
 - `lib/theme-provider.tsx` + `components/ui/ThemeToggle.tsx` manage light/dark mode.
 
 ### Behavioral domain concepts (useful for reading UI code)
